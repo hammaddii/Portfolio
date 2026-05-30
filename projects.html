@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects | Hammad Riaz Ali</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .projects-layout {
+    display: grid;
+    grid-template-columns: 1fr 560px;
+    gap: 2px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    max-height: 520px;
+    overflow: hidden;
+    align-items: start;
+  }
+
+  .projects-list { 
+    background: var(--bg); 
+    height: 520px; 
+    overflow-y: auto;
+    scrollbar-width: none; 
+  }
+
+  .projects-list::-webkit-scrollbar { display: none; }
+
+  .project-row {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    align-items: center;
+    gap: 20px;
+    padding: 22px 28px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+  }
+  .project-row:last-child { border-bottom: none; }
+  .project-row:hover { background: var(--bg2); }
+  .project-row.active {
+    background: var(--accent-dim);
+    border-left: 2px solid var(--accent);
+    padding-left: 26px;
+  }
+  .project-row-num {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+  }
+  .project-row-info { min-width: 0; }
+  .project-row-name {
+    font-family: var(--serif);
+    font-size: 21px;
+    color: var(--ink);
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+  .project-row-tag {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .project-row-short {
+    font-size: 12px;
+    color: var(--ink-faint);
+    max-width: 320px;
+    line-height: 1.5;
+    margin-top: 6px;
+  }
+  .project-row-arrow {
+    font-size: 14px;
+    color: var(--ink-faint);
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .project-row.active .project-row-arrow { color: var(--accent); transform: rotate(90deg); }
+
+  /* DETAIL PANEL */
+  .detail-panel {
+    background: var(--bg2);
+    height: 100%;
+    min-height: 100%;
+    max-height: 520px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: none;
+  }
+  .detail-panel::-webkit-scrollbar { display: none; }
+  .detail-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 320px;
+    color: var(--ink-faint);
+    gap: 12px;
+    padding: 40px;
+    text-align: center;
+  }
+  .detail-empty-icon { font-size: 28px; opacity: 0.3; }
+  .detail-empty-text { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .detail-content { display: none; padding: 32px 28px; flex-direction: column; gap: 0; }
+  .detail-content.visible { display: flex; }
+
+  .detail-close {
+    display: flex; justify-content: flex-end; margin-bottom: 20px;
+  }
+  .close-btn {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-faint); cursor: pointer; background: none; border: none;
+    padding: 4px 8px; transition: color 0.2s;
+  }
+  .close-btn:hover { color: var(--accent); }
+
+  .detail-cat {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 10px;
+  }
+  .detail-name {
+    font-family: var(--serif); font-size: 32px;
+    color: var(--ink); line-height: 1.15; margin-bottom: 20px;
+  }
+  .detail-divider {
+    height: 1px; background: var(--border); margin-bottom: 20px;
+  }
+  .detail-section { margin-bottom: 20px; }
+  .detail-section-label {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-faint); margin-bottom: 8px;
+  }
+  .detail-section-text {
+    font-size: 15px; color: var(--ink-muted); line-height: 1.8;
+  }
+  .detail-section-text p { margin-bottom: 8px; }
+  .detail-section-text p:last-child { margin-bottom: 0; }
+
+  .detail-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .detail-tag {
+    font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 9px;
+    border: 1px solid var(--border);
+    color: var(--ink-muted);
+    background: var(--bg3);
+  }
+
+  .detail-stat-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
+  }
+  .detail-stat {
+    padding: 14px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+  .detail-stat-val {
+    font-family: var(--serif); font-size: 24px; color: var(--accent);
+    line-height: 1; margin-bottom: 4px;
+  }
+  .detail-stat-label { font-size: 10px; color: var(--ink-faint); letter-spacing: 0.04em; }
+
+  @media (max-width: 760px) {
+    .projects-layout { grid-template-columns: 1fr; }
+    .detail-panel { position: fixed; bottom: 0; left: 0; right: 0; top: auto;
+      max-height: 75vh; z-index: 200; border-top: 1px solid var(--border); }
+    .detail-panel:not(:has(.detail-content.visible)) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand"><img src="profile.png" class="nav-avatar" alt="Hammad"><a href="index.html" class="nav-name"><span>Hammaddii</span></a></div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="projects.html" class="active">Projects</a>
+    <a href="skills.html">Skills</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<div class="page active">
+  <div class="container-wide">
+    <p class="section-label">Selected projects</p>
+
+    <div class="projects-layout">
+
+      <!-- LIST -->
+      <div class="projects-list">
+
+        <div class="project-row" onclick="openDetail('nadia')">
+          <span class="project-row-num">01</span>
+          <div class="project-row-info">
+            <div class="project-row-tag">ERP Platform</div>
+            <div class="project-row-name">Nadia Salon & Spa</div>
+            <div class="project-row-short">Full internal operations ERP covering HR, payroll, finance, inventory, appointments, and multi-location management.</div>
+          </div>
+          <span class="project-row-arrow">›</span>
+        </div>
+
+        <div class="project-row" onclick="openDetail('visionai')">
+          <span class="project-row-num">02</span>
+          <div class="project-row-info">
+            <div class="project-row-tag">AI / Computer Vision</div>
+            <div class="project-row-name">VisionAI</div>
+            <div class="project-row-short">Real-time system combining YOLOv8 object detection and a custom CNN for facial emotion recognition, deployed via Flask.</div>
+          </div>
+          <span class="project-row-arrow">›</span>
+        </div>
+
+        <div class="project-row" onclick="openDetail('clubs')">
+          <span class="project-row-num">03</span>
+          <div class="project-row-info">
+            <div class="project-row-tag">Full Stack Web App</div>
+            <div class="project-row-name">After School Clubs</div>
+            <div class="project-row-short">Responsive full-stack web app with lesson catalog, real-time search, cart, and checkout. Vue.js frontend, Node/Express backend, MongoDB Atlas.</div>
+          </div>
+          <span class="project-row-arrow">›</span>
+        </div>
+
+        <div class="project-row" onclick="openDetail('ml')">
+          <span class="project-row-num">04</span>
+          <div class="project-row-info">
+            <div class="project-row-tag">Machine Learning</div>
+            <div class="project-row-name">Handwritten Digit Classifier</div>
+            <div class="project-row-short">Neural network classifying handwritten digits with sigmoid activation and L2 regularization, achieving 95.51% average accuracy via two-fold cross-validation.</div>
+          </div>
+          <span class="project-row-arrow">›</span>
+        </div>
+
+        <div class="project-row" onclick="openDetail('security')">
+          <span class="project-row-num">05</span>
+          <div class="project-row-info">
+            <div class="project-row-tag">Network Security</div>
+            <div class="project-row-name">Risk Analysis & Mitigation</div>
+            <div class="project-row-short">Telecom case study risk assessment covering vulnerability identification, secure network architecture design, and a full security maintenance framework.</div>
+          </div>
+          <span class="project-row-arrow">›</span>
+        </div>
+
+      </div>
+
+      <!-- DETAIL PANEL -->
+      <div class="detail-panel" id="detailPanel">
+
+        <div class="detail-empty" id="detailEmpty">
+          <div class="detail-empty-icon">↖</div>
+          <div class="detail-empty-text">Select a project to view details</div>
+        </div>
+
+        <!-- NADIA -->
+        <div class="detail-content" id="detail-nadia">
+          <div class="detail-close"><button class="close-btn" onclick="closeDetail()">✕ Close</button></div>
+          <div class="detail-cat">ERP Platform</div>
+          <div class="detail-name">Nadia Salon & Spa</div>
+          <div class="detail-divider"></div>
+
+          <div class="detail-stat-row">
+            <div class="detail-stat">
+              <div class="detail-stat-val">56+</div>
+              <div class="detail-stat-label">REST APIs built</div>
+            </div>
+            <div class="detail-stat">
+              <div class="detail-stat-val">6</div>
+              <div class="detail-stat-label">User account types</div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Overview</div>
+            <div class="detail-section-text">
+              <p>A comprehensive internal operations ERP built for Nadia Salon & Spa, covering every aspect of running a multi-location salon business. Company-side only, designed for staff, management, and executives, not clients.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Core Modules</div>
+            <div class="detail-section-text">
+              <p><strong style="color:var(--ink)">HR & Workforce</strong> | Employee logins, clock-ins/outs, shift scheduling, leave and holiday management, payroll processing, salary calculations, commission tracking, and KPI-based performance reviews.</p>
+              <p><strong style="color:var(--ink)">Appointments & Scheduling</strong> | Book appointments, assign employees, manage treatment room and resource bookings, with conflict prevention to avoid double-booking staff.</p>
+              <p><strong style="color:var(--ink)">CRM</strong> | Full client profiles, booking history, loyalty programs, and automated client reminders and notifications.</p>
+              <p><strong style="color:var(--ink)">Finance & POS</strong> | Point of sale, income and expense tracking, profit/loss reporting, audit-ready financial logs, refund and cancellation handling, and supplier/purchase order management.</p>
+              <p><strong style="color:var(--ink)">Services & Inventory</strong> | Create and manage all salon services (hair, massage, spa treatments, etc.), track product inventory, and trigger restocking.</p>
+              <p><strong style="color:var(--ink)">Reporting</strong> | Exportable reports (PDF/Excel) for productivity, finance, and employee availability across day, week, month, quarter, and year. Live KPI dashboard for management.</p>
+              <p><strong style="color:var(--ink)">Admin</strong> | Role-based access control across 6 user types (Employee, HR, Management, Accounts, CEO, etc.), account creation, approval of requests, and deactivation of terminated accounts.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Tech Stack</div>
+            <div class="detail-tags">
+              <span class="detail-tag">Flutter</span>
+              <span class="detail-tag">Dart</span>
+              <span class="detail-tag">.NET 8</span>
+              <span class="detail-tag">C#</span>
+              <span class="detail-tag">Entity Framework Core</span>
+              <span class="detail-tag">PostgreSQL</span>
+              <span class="detail-tag">Docker</span>
+              <span class="detail-tag">Nginx</span>
+              <span class="detail-tag">Firebase Auth</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VISIONAI -->
+        <div class="detail-content" id="detail-visionai">
+          <div class="detail-close"><button class="close-btn" onclick="closeDetail()">✕ Close</button></div>
+          <div class="detail-cat">AI / Computer Vision | Final Year Project</div>
+          <div class="detail-name">VisionAI</div>
+          <div class="detail-divider"></div>
+
+          <div class="detail-stat-row">
+            <div class="detail-stat">
+              <div class="detail-stat-val">65%</div>
+              <div class="detail-stat-label">Validation accuracy</div>
+            </div>
+            <div class="detail-stat">
+              <div class="detail-stat-val">7</div>
+              <div class="detail-stat-label">Emotion classes</div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Overview</div>
+            <div class="detail-section-text">
+              <p>An AI-powered real-time recognition system built as a BSc final year project at Middlesex University Dubai. Initially designed for security applications in public transport settings, VisionAI combines object detection with facial emotion recognition in a single live video pipeline.</p>
+              <p>User testing with 20 participants showed real-world performance exceeding the validation metrics: 55% rated it "Very Good" and 75% said it exceeded their expectations.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">How It Works</div>
+            <div class="detail-section-text">
+              <p><strong style="color:var(--ink)">Object Detection</strong> | YOLOv8l (large model) runs on each video frame, detecting and labelling all objects with bounding boxes and confidence scores.</p>
+              <p><strong style="color:var(--ink)">Emotion Recognition</strong> | When a person is detected, Haar Cascade classifiers isolate the face region. The face is normalized and passed into a custom CNN trained on FER2013, classifying one of 7 emotions: angry, disgusted, fearful, happy, neutral, sad, or surprised.</p>
+              <p><strong style="color:var(--ink)">Deployment</strong> | A Flask web app streams the annotated live feed via multipart HTTP, with no page refresh required. The app auto-opens in the browser on launch.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Model Architecture</div>
+            <div class="detail-section-text">
+              <p>Custom CNN with 4 convolutional blocks (32 → 64 → 128 → 256 filters), batch normalization, max pooling, and dropout after each block. Trained for 50 epochs on 48×48 grayscale images with Adam optimizer and categorical cross-entropy loss. Approximately 2.36M trainable parameters.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Tech Stack</div>
+            <div class="detail-tags">
+              <span class="detail-tag">Python</span>
+              <span class="detail-tag">YOLOv8</span>
+              <span class="detail-tag">TensorFlow</span>
+              <span class="detail-tag">Keras</span>
+              <span class="detail-tag">OpenCV</span>
+              <span class="detail-tag">Flask</span>
+              <span class="detail-tag">Haar Cascades</span>
+              <span class="detail-tag">FER2013</span>
+              <span class="detail-tag">COCO</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CLUBS -->
+        <div class="detail-content" id="detail-clubs">
+          <div class="detail-close"><button class="close-btn" onclick="closeDetail()">✕ Close</button></div>
+          <div class="detail-cat">Full Stack Web Application</div>
+          <div class="detail-name">After School Clubs</div>
+          <div class="detail-divider"></div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Overview</div>
+            <div class="detail-section-text">
+              <p>A responsive full-stack web application built for the CST3144 Full Stack Development module at Middlesex University Dubai. The app allows users to browse, search, and book after-school lesson slots across various subjects.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Features</div>
+            <div class="detail-section-text">
+              <p><strong style="color:var(--ink)">Lesson Catalog</strong> | Displays 10+ lessons each with subject, location, price, availability, and icon. Sortable by subject, location, price, or spaces in ascending/descending order.</p>
+              <p><strong style="color:var(--ink)">Search</strong> | Real-time search-as-you-type across all lesson attributes, handled by an Express.js GET route querying MongoDB Atlas and returned to the Vue.js frontend via Fetch.</p>
+              <p><strong style="color:var(--ink)">Cart & Checkout</strong> | Add to cart with live space tracking; remove items and restore availability. Checkout validates name (letters only) and phone (numbers only) before submitting the order.</p>
+              <p><strong style="color:var(--ink)">Backend</strong> | Logger middleware for all requests, static file middleware for lesson images, and three REST API routes: GET /lessons, POST /orders, PUT /lessons/:id for space updates.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Tech Stack</div>
+            <div class="detail-tags">
+              <span class="detail-tag">Vue.js</span>
+              <span class="detail-tag">Node.js</span>
+              <span class="detail-tag">Express.js</span>
+              <span class="detail-tag">MongoDB Atlas</span>
+              <span class="detail-tag">AWS / Render</span>
+              <span class="detail-tag">GitHub Pages</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ML -->
+        <div class="detail-content" id="detail-ml">
+          <div class="detail-close"><button class="close-btn" onclick="closeDetail()">✕ Close</button></div>
+          <div class="detail-cat">Machine Learning | CST3170</div>
+          <div class="detail-name">Handwritten Digit Classifier</div>
+          <div class="detail-divider"></div>
+
+          <div class="detail-stat-row">
+            <div class="detail-stat">
+              <div class="detail-stat-val">95.51%</div>
+              <div class="detail-stat-label">Average test accuracy</div>
+            </div>
+            <div class="detail-stat">
+              <div class="detail-stat-val">550</div>
+              <div class="detail-stat-label">Training cycles</div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Overview</div>
+            <div class="detail-section-text">
+              <p>A neural network built to classify handwritten digits using the UCI Optical Recognition of Handwritten Digits dataset. The focus was on selecting the right architecture, tuning hyperparameters, and validating generalization through two-fold cross-validation.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Approach</div>
+            <div class="detail-section-text">
+              <p><strong style="color:var(--ink)">Algorithm Selection</strong> | Started with sigmoid activation, switched to a linear classifier which overfit badly, then returned to sigmoid with focused hyperparameter tuning to achieve stable results.</p>
+              <p><strong style="color:var(--ink)">Architecture</strong> | Hidden layer with 64 neurons, sigmoid activation, L2 regularization (rate 0.00005), and learning rate decay from 0.01 down to 0.0095 over 550 training cycles.</p>
+              <p><strong style="color:var(--ink)">Validation</strong> | Two-fold cross-validation: trained on Dataset1, tested on Dataset2 (95.05%), then swapped (95.98%), averaging 95.51%. Confusion matrices confirmed minimal misclassifications, mainly on digits 1, 4, and 9.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Tech Stack</div>
+            <div class="detail-tags">
+              <span class="detail-tag">Python</span>
+              <span class="detail-tag">NumPy</span>
+              <span class="detail-tag">TensorFlow</span>
+              <span class="detail-tag">scikit-learn</span>
+              <span class="detail-tag">UCI Dataset</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECURITY -->
+        <div class="detail-content" id="detail-security">
+          <div class="detail-close"><button class="close-btn" onclick="closeDetail()">✕ Close</button></div>
+          <div class="detail-cat">Network Security & Cryptography</div>
+          <div class="detail-name">Risk Analysis & Mitigation</div>
+          <div class="detail-divider"></div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Overview</div>
+            <div class="detail-section-text">
+              <p>A comprehensive security case study for a telecom company, covering vulnerability identification, secure network architecture design, and an ongoing security maintenance framework.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">What Was Covered</div>
+            <div class="detail-section-text">
+              <p><strong style="color:var(--ink)">Risk Assessment</strong> | Identified key vulnerabilities including SQL injection, XSS, and CSRF. Recommended mitigations using WAFs, parameterized queries, and Content Security Policy enforcement.</p>
+              <p><strong style="color:var(--ink)">Secure Architecture</strong> | Designed a network with Site-to-Site and Remote Access VPNs, firewalls, and a DMZ. Implemented data protection via encryption, SFTP/SSL, and offsite backups.</p>
+              <p><strong style="color:var(--ink)">Security Framework</strong> | Built a maintenance plan covering vulnerability scanning, patch management, intrusion detection and prevention systems, and employee security training.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Technologies & Methods</div>
+            <div class="detail-tags">
+              <span class="detail-tag">VPN</span>
+              <span class="detail-tag">Firewalls</span>
+              <span class="detail-tag">DMZ</span>
+              <span class="detail-tag">SFTP / SSL</span>
+              <span class="detail-tag">SQL Injection Testing</span>
+              <span class="detail-tag">WAF</span>
+              <span class="detail-tag">DLP Tools</span>
+              <span class="detail-tag">IDS / IPS</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    <span class="footer-text">Hammad Riaz Ali &nbsp;·&nbsp; Full-Stack Developer</span>
+    <span class="footer-text">Doha, Qatar &nbsp;·&nbsp; 2026</span>
+  </footer>
+</div>
+
+<script>
+  let current = null;
+
+  function openDetail(id) {
+    // hide all
+    document.querySelectorAll('.detail-content').forEach(el => el.classList.remove('visible'));
+    document.querySelectorAll('.project-row').forEach(el => el.classList.remove('active'));
+    document.getElementById('detailEmpty').style.display = 'none';
+
+    // show selected
+    const content = document.getElementById('detail-' + id);
+    if (content) content.classList.add('visible');
+
+    // mark row active
+    event.currentTarget.classList.add('active');
+    current = id;
+
+    // scroll panel to top
+    document.getElementById('detailPanel').scrollTop = 0;
+  }
+
+  function closeDetail() {
+    document.querySelectorAll('.detail-content').forEach(el => el.classList.remove('visible'));
+    document.querySelectorAll('.project-row').forEach(el => el.classList.remove('active'));
+    document.getElementById('detailEmpty').style.display = 'flex';
+    current = null;
+  }
+</script>
+</body>
+</html>
