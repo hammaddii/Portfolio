@@ -9,22 +9,27 @@
   .projects-layout {
     display: grid;
     grid-template-columns: 1fr 560px;
+    grid-template-rows: minmax(0, 1fr);
     gap: 2px;
     background: var(--border);
     border: 1px solid var(--border);
-    max-height: 520px;
+    /* fixed-height window: each column scrolls on its own */
+    height: clamp(480px, calc(100vh - 190px), 760px);
     overflow: hidden;
-    align-items: start;
+    align-items: stretch;
   }
 
-  .projects-list { 
-    background: var(--bg); 
-    height: 520px; 
+  .projects-list {
+    background: var(--bg);
+    min-height: 0;
     overflow-y: auto;
-    scrollbar-width: none; 
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
   }
-
-  .projects-list::-webkit-scrollbar { display: none; }
+  .projects-list::-webkit-scrollbar, .detail-panel::-webkit-scrollbar { width: 8px; }
+  .projects-list::-webkit-scrollbar-thumb, .detail-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  .project-row:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
 
   .project-row {
     display: grid;
@@ -81,15 +86,14 @@
   /* DETAIL PANEL */
   .detail-panel {
     background: var(--bg2);
-    height: 100%;
-    min-height: 100%;
-    max-height: 520px;
+    min-height: 0;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
     display: flex;
     flex-direction: column;
-    scrollbar-width: none;
   }
-  .detail-panel::-webkit-scrollbar { display: none; }
   .detail-empty {
     display: flex;
     flex-direction: column;
@@ -164,7 +168,8 @@
   .detail-stat-label { font-size: 10px; color: var(--ink-faint); letter-spacing: 0.04em; }
 
   @media (max-width: 760px) {
-    .projects-layout { grid-template-columns: 1fr; }
+    .projects-layout { grid-template-columns: 1fr; grid-template-rows: auto; height: auto; overflow: visible; }
+    .projects-list { overflow: visible; }
     .detail-panel { position: fixed; bottom: 0; left: 0; right: 0; top: auto;
       max-height: 75vh; z-index: 200; border-top: 1px solid var(--border); }
     .detail-panel:not(:has(.detail-content.visible)) { display: none; }
@@ -174,7 +179,7 @@
 <body>
 
 <nav>
-  <div class="nav-brand"><img src="profile.png" class="nav-avatar" alt="Hammad"><a href="index.html" class="nav-name"><span>Hammaddii</span></a></div>
+  <div class="nav-brand"><img src="profile.png" class="nav-avatar" alt="Hammad"><a href="index.html" class="nav-name">Hammad <span>Riaz Ali</span></a></div>
   <div class="nav-links">
     <a href="index.html">Home</a>
     <a href="about.html">About</a>
@@ -193,7 +198,7 @@
       <!-- LIST -->
       <div class="projects-list">
 
-        <div class="project-row" onclick="openDetail('nadia')">
+        <div class="project-row" data-id="nadia" role="button" tabindex="0">
           <span class="project-row-num">01</span>
           <div class="project-row-info">
             <div class="project-row-tag">ERP Platform</div>
@@ -203,8 +208,18 @@
           <span class="project-row-arrow">›</span>
         </div>
 
-        <div class="project-row" onclick="openDetail('visionai')">
+        <div class="project-row" data-id="auction" role="button" tabindex="0">
           <span class="project-row-num">02</span>
+          <div class="project-row-info">
+            <div class="project-row-tag">Python Automation</div>
+            <div class="project-row-name">Vehicle Auction Tracker</div>
+            <div class="project-row-short">Python tool that watches vehicle auction sites in Fujairah and Sharjah and texts buyers when matching vehicles are listed or bid on.</div>
+          </div>
+          <span class="project-row-arrow">›</span>
+        </div>
+
+        <div class="project-row" data-id="visionai" role="button" tabindex="0">
+          <span class="project-row-num">03</span>
           <div class="project-row-info">
             <div class="project-row-tag">AI / Computer Vision</div>
             <div class="project-row-name">VisionAI</div>
@@ -213,8 +228,8 @@
           <span class="project-row-arrow">›</span>
         </div>
 
-        <div class="project-row" onclick="openDetail('clubs')">
-          <span class="project-row-num">03</span>
+        <div class="project-row" data-id="clubs" role="button" tabindex="0">
+          <span class="project-row-num">04</span>
           <div class="project-row-info">
             <div class="project-row-tag">Full Stack Web App</div>
             <div class="project-row-name">After School Clubs</div>
@@ -223,8 +238,8 @@
           <span class="project-row-arrow">›</span>
         </div>
 
-        <div class="project-row" onclick="openDetail('ml')">
-          <span class="project-row-num">04</span>
+        <div class="project-row" data-id="ml" role="button" tabindex="0">
+          <span class="project-row-num">05</span>
           <div class="project-row-info">
             <div class="project-row-tag">Machine Learning</div>
             <div class="project-row-name">Handwritten Digit Classifier</div>
@@ -233,12 +248,62 @@
           <span class="project-row-arrow">›</span>
         </div>
 
-        <div class="project-row" onclick="openDetail('security')">
-          <span class="project-row-num">05</span>
+        <div class="project-row" data-id="security" role="button" tabindex="0">
+          <span class="project-row-num">06</span>
           <div class="project-row-info">
             <div class="project-row-tag">Network Security</div>
             <div class="project-row-name">Risk Analysis & Mitigation</div>
             <div class="project-row-short">Telecom case study risk assessment covering vulnerability identification, secure network architecture design, and a full security maintenance framework.</div>
+          </div>
+          <span class="project-row-arrow">›</span>
+        </div>
+
+        <div class="project-row" data-id="cars" role="button" tabindex="0">
+          <span class="project-row-num">07</span>
+          <div class="project-row-info">
+            <div class="project-row-tag">Desktop Web App</div>
+            <div class="project-row-name">Car Sales Manager</div>
+            <div class="project-row-short">Python and Flask application for listing, selling and scrapping cars, with user accounts, Firebase image storage and a packaged executable.</div>
+          </div>
+          <span class="project-row-arrow">›</span>
+        </div>
+
+        <div class="project-row" data-id="starlinkdb" role="button" tabindex="0">
+          <span class="project-row-num">08</span>
+          <div class="project-row-info">
+            <div class="project-row-tag">Database Design</div>
+            <div class="project-row-name">Starlink Sales Database</div>
+            <div class="project-row-short">Relational database for an electronics distributor covering customers, products, suppliers, organizations and sales, with SQL reports.</div>
+          </div>
+          <span class="project-row-arrow">›</span>
+        </div>
+
+        <div class="project-row" data-id="expense" role="button" tabindex="0">
+          <span class="project-row-num">09</span>
+          <div class="project-row-info">
+            <div class="project-row-tag">Software Design</div>
+            <div class="project-row-name">Expense Tracker</div>
+            <div class="project-row-short">C# expense tracking application designed with UML, with secure registration, password validation and monthly expense pages.</div>
+          </div>
+          <span class="project-row-arrow">›</span>
+        </div>
+
+        <div class="project-row" data-id="gym" role="button" tabindex="0">
+          <span class="project-row-num">10</span>
+          <div class="project-row-info">
+            <div class="project-row-tag">Web Development</div>
+            <div class="project-row-name">No Way Gym</div>
+            <div class="project-row-short">Responsive eight-page home gym website with a video landing page, Firebase login, contact form and shop.</div>
+          </div>
+          <span class="project-row-arrow">›</span>
+        </div>
+
+        <div class="project-row" data-id="visor" role="button" tabindex="0">
+          <span class="project-row-num">11</span>
+          <div class="project-row-info">
+            <div class="project-row-tag">Systems Analysis</div>
+            <div class="project-row-name">Visor Insurance Analysis</div>
+            <div class="project-row-short">Systems analysis for an insurance company: fact-finding methods, ethics, SWOT, stakeholder mapping and user requirements.</div>
           </div>
           <span class="project-row-arrow">›</span>
         </div>
@@ -262,7 +327,7 @@
 
           <div class="detail-stat-row">
             <div class="detail-stat">
-              <div class="detail-stat-val">56+</div>
+              <div class="detail-stat-val">70+</div>
               <div class="detail-stat-label">REST APIs built</div>
             </div>
             <div class="detail-stat">
@@ -296,13 +361,71 @@
             <div class="detail-tags">
               <span class="detail-tag">Flutter</span>
               <span class="detail-tag">Dart</span>
-              <span class="detail-tag">.NET 8</span>
-              <span class="detail-tag">C#</span>
-              <span class="detail-tag">Entity Framework Core</span>
+              <span class="detail-tag">Python</span>
+              <span class="detail-tag">Django</span>
+              <span class="detail-tag">Flask</span>
               <span class="detail-tag">PostgreSQL</span>
               <span class="detail-tag">Docker</span>
               <span class="detail-tag">Nginx</span>
               <span class="detail-tag">Firebase Auth</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VEHICLE AUCTION TRACKER -->
+        <div class="detail-content" id="detail-auction">
+          <div class="detail-close"><button class="close-btn" onclick="closeDetail()">✕ Close</button></div>
+          <div class="detail-cat">Python Automation | Ammar Bin Ashfaq General Trading</div>
+          <div class="detail-name">Vehicle Auction Tracker</div>
+          <div class="detail-divider"></div>
+
+          <div class="detail-stat-row">
+            <div class="detail-stat">
+              <div class="detail-stat-val">4-6</div>
+              <div class="detail-stat-label">Auction sites monitored</div>
+            </div>
+            <div class="detail-stat">
+              <div class="detail-stat-val">2</div>
+              <div class="detail-stat-label">Emirates covered</div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Overview</div>
+            <div class="detail-section-text">
+              <p>An automation tool built at Ammar Bin Ashfaq General Trading, where the team buys, repairs and resells fleet vehicles: taxis, delivery cars, vans, pickup trucks and fleet motorcycles. Staff used to check each auction site by hand for new listings. The tracker does the checking and texts them instead.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">What It Does</div>
+            <div class="detail-section-text">
+              <p><strong style="color:var(--ink)">Multi-Site Monitoring</strong> | Checks four to six vehicle auction sites in Fujairah and Sharjah, pulling listings through a mix of website monitoring and site data feeds, and picks out vehicles that match the defined models and price ranges.</p>
+              <p><strong style="color:var(--ink)">Listing Alerts</strong> | When a matching vehicle is added, buyers get an SMS with its make, model year and starting bid.</p>
+              <p><strong style="color:var(--ink)">Auction Type</strong> | Each alert says whether the auction is online only, in person only or both, so the buyer knows how to take part.</p>
+              <p><strong style="color:var(--ink)">Bid Updates</strong> | Follows the auctions buyers care about and sends updates when a bid is placed, or when none has been.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">How It Runs</div>
+            <div class="detail-section-text">
+              <p><strong style="color:var(--ink)">Deployment</strong> | Python-based, running continuously on a company machine.</p>
+              <p><strong style="color:var(--ink)">SMS Integration</strong> | Plugs into the company's existing bulk SMS software, which sends one message to many numbers under a single sender name, like a telecom notification. Buyers receive alerts through a channel the company already uses.</p>
+              <p><strong style="color:var(--ink)">Business Impact</strong> | Replaced manual checking of every auction site, so buyers hear about suitable vehicles as soon as they are listed.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Tech Stack</div>
+            <div class="detail-tags">
+              <span class="detail-tag">Python</span>
+              <span class="detail-tag">Automation</span>
+              <span class="detail-tag">Web Monitoring</span>
+              <span class="detail-tag">Data Feeds</span>
+              <span class="detail-tag">SMS Integration</span>
+              <span class="detail-tag">Bulk SMS Gateway</span>
+              <span class="detail-tag">Notifications</span>
             </div>
           </div>
         </div>
@@ -486,6 +609,263 @@
           </div>
         </div>
 
+        <!-- CAR SALES MANAGER -->
+        <div class="detail-content" id="detail-cars">
+          <div class="detail-close"><button class="close-btn" onclick="closeDetail()">✕ Close</button></div>
+          <div class="detail-cat">Python Application | NCC Level 5 Computing Project</div>
+          <div class="detail-name">Car Sales Manager</div>
+          <div class="detail-divider"></div>
+
+          <div class="detail-stat-row">
+            <div class="detail-stat">
+              <div class="detail-stat-val">2</div>
+              <div class="detail-stat-label">Database tables</div>
+            </div>
+            <div class="detail-stat">
+              <div class="detail-stat-val">5</div>
+              <div class="detail-stat-label">Application pages</div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Overview</div>
+            <div class="detail-section-text">
+              <p>A car inventory and sales application built for the NCC Level 5 Computing Project at Aptech Doha. Staff log in, add cars with photos, and move them between Available and Sold lists as sales happen.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Features</div>
+            <div class="detail-section-text">
+              <p><strong style="color:var(--ink)">Accounts</strong> | Sign-up and login pages with credential verification before access to the Available Cars page.</p>
+              <p><strong style="color:var(--ink)">Inventory</strong> | Add a car with make, model, year, mileage, colour and price, plus a photo. Empty fields are rejected so incomplete listings are never saved.</p>
+              <p><strong style="color:var(--ink)">Sold and Scrapped</strong> | A pop-up captures the final sale price and moves the car to the Sold Cars page. Scrapping a car deletes the listing.</p>
+              <p><strong style="color:var(--ink)">Image Storage</strong> | Car photos are uploaded to Firebase cloud storage and displayed in the car list.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Under the Hood</div>
+            <div class="detail-section-text">
+              <p><strong style="color:var(--ink)">Backend</strong> | Flask routes render each page and handle login, adding, selling and scrapping. SQLAlchemy with SQLite stores cars and users; a single Car table serves both lists, filtered by a sold status flag.</p>
+              <p><strong style="color:var(--ink)">Frontend</strong> | Jinja templates built from a shared base layout, styled with CSS. JavaScript drives the pop-ups, logout confirmation and photo upload.</p>
+              <p><strong style="color:var(--ink)">Packaging</strong> | Bundled into a standalone executable with PyInstaller and flaskwebgui, so it runs like a desktop application.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Tech Stack</div>
+            <div class="detail-tags">
+              <span class="detail-tag">Python</span>
+              <span class="detail-tag">Flask</span>
+              <span class="detail-tag">SQLAlchemy</span>
+              <span class="detail-tag">SQLite</span>
+              <span class="detail-tag">Firebase Storage</span>
+              <span class="detail-tag">JavaScript</span>
+              <span class="detail-tag">HTML</span>
+              <span class="detail-tag">CSS</span>
+              <span class="detail-tag">PyInstaller</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STARLINK SALES DATABASE -->
+        <div class="detail-content" id="detail-starlinkdb">
+          <div class="detail-close"><button class="close-btn" onclick="closeDetail()">✕ Close</button></div>
+          <div class="detail-cat">SQL | NCC Level 5 Database Design &amp; Development</div>
+          <div class="detail-name">Starlink Sales Database</div>
+          <div class="detail-divider"></div>
+
+          <div class="detail-stat-row">
+            <div class="detail-stat">
+              <div class="detail-stat-val">7</div>
+              <div class="detail-stat-label">Tables designed</div>
+            </div>
+            <div class="detail-stat">
+              <div class="detail-stat-val">10</div>
+              <div class="detail-stat-label">Assessment tasks</div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Overview</div>
+            <div class="detail-section-text">
+              <p>A full database design for a Qatar electronics distributor selling laptops, phones and accessories to individuals and to organizations in bulk. The work runs from business analysis through to working SQL reports.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">What Was Covered</div>
+            <div class="detail-section-text">
+              <p><strong style="color:var(--ink)">Design</strong> | Business description, ER diagram, data dictionary and normalization of the Sales, Product, Company, Organization, Employee, Services and Customer tables, with primary and foreign keys mapped between them.</p>
+              <p><strong style="color:var(--ink)">Implementation</strong> | CREATE TABLE scripts and populated sample data for products, suppliers, organizations and sales, written for SQL Server.</p>
+              <p><strong style="color:var(--ink)">Business Rules</strong> | Modelled a one-year warranty on products, a 10% bulk discount on organization orders over 150 units, and sales tracked per employee and per date.</p>
+              <p><strong style="color:var(--ink)">Reporting</strong> | SQL reports using inner joins and grouped totals, such as sales per day and sales per employee and product.</p>
+              <p><strong style="color:var(--ink)">Future Development</strong> | Assessed the design and discussed moving to a cloud data warehouse as the business grows.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Tech Stack</div>
+            <div class="detail-tags">
+              <span class="detail-tag">SQL</span>
+              <span class="detail-tag">SQL Server</span>
+              <span class="detail-tag">ER Modelling</span>
+              <span class="detail-tag">Normalization</span>
+              <span class="detail-tag">Data Dictionary</span>
+              <span class="detail-tag">Joins</span>
+              <span class="detail-tag">Reporting</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXPENSE TRACKER -->
+        <div class="detail-content" id="detail-expense">
+          <div class="detail-close"><button class="close-btn" onclick="closeDetail()">✕ Close</button></div>
+          <div class="detail-cat">C# | NCC Level 5 Analysis, Design &amp; Implementation</div>
+          <div class="detail-name">Expense Tracker</div>
+          <div class="detail-divider"></div>
+
+          <div class="detail-stat-row">
+            <div class="detail-stat">
+              <div class="detail-stat-val">3</div>
+              <div class="detail-stat-label">UML diagrams</div>
+            </div>
+            <div class="detail-stat">
+              <div class="detail-stat-val">8+</div>
+              <div class="detail-stat-label">Password length rule</div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Overview</div>
+            <div class="detail-section-text">
+              <p>An expense tracking application taken from analysis and design through to implementation. Each user can keep separate home pages, such as one per month or category, and record individual expenses on them.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">What Was Covered</div>
+            <div class="detail-section-text">
+              <p><strong style="color:var(--ink)">Class Diagram</strong> | User, HomePage, Expense and Editor classes, with one-to-many relationships from user to home pages and from home pages to expenses.</p>
+              <p><strong style="color:var(--ink)">Activity and Use Case Diagrams</strong> | Modelled the login, registration and expense entry flows and the actions available to each type of user.</p>
+              <p><strong style="color:var(--ink)">Implementation</strong> | Login and registration forms with validation messages for adding expense records, and a partially filled tracker to show the working interface.</p>
+              <p><strong style="color:var(--ink)">Password Security</strong> | Registration checks a minimum length of 8 characters, a mix of lowercase, uppercase, digits and special characters, and rejects passwords found in a common-password list.</p>
+              <p><strong style="color:var(--ink)">Software Quality</strong> | Evaluated the application against software quality criteria and the design decisions made.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Tech Stack</div>
+            <div class="detail-tags">
+              <span class="detail-tag">C#</span>
+              <span class="detail-tag">UML</span>
+              <span class="detail-tag">Class Diagrams</span>
+              <span class="detail-tag">Activity Diagrams</span>
+              <span class="detail-tag">Use Cases</span>
+              <span class="detail-tag">Input Validation</span>
+              <span class="detail-tag">draw.io</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- NO WAY GYM -->
+        <div class="detail-content" id="detail-gym">
+          <div class="detail-close"><button class="close-btn" onclick="closeDetail()">✕ Close</button></div>
+          <div class="detail-cat">Dynamic Website | NCC Level 5</div>
+          <div class="detail-name">No Way Gym</div>
+          <div class="detail-divider"></div>
+
+          <div class="detail-stat-row">
+            <div class="detail-stat">
+              <div class="detail-stat-val">8</div>
+              <div class="detail-stat-label">Website pages</div>
+            </div>
+            <div class="detail-stat">
+              <div class="detail-stat-val">500px</div>
+              <div class="detail-stat-label">Mobile breakpoint</div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Overview</div>
+            <div class="detail-section-text">
+              <p>A dynamic website for a home gym equipment business that started during Covid-19. It sells equipment, shows repair work and gives people who want to build a home gym the information to start.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Features</div>
+            <div class="detail-section-text">
+              <p><strong style="color:var(--ink)">Landing Page</strong> | Background video behind a welcome message, an image slideshow with arrow controls and scrollable info cards for the products.</p>
+              <p><strong style="color:var(--ink)">Accounts</strong> | Registration and a login pop-up that cross-references user details stored in a Firebase database.</p>
+              <p><strong style="color:var(--ink)">Contact Form</strong> | Collects name, email, mobile and enquiry, saves them to Firebase and confirms a successful submission to the user.</p>
+              <p><strong style="color:var(--ink)">Content Pages</strong> | Shop with popular home gym products, a gallery of equipment and workout techniques, a workshop page for home and garage repairs, and an info page for people starting their own gym.</p>
+              <p><strong style="color:var(--ink)">Responsive Design</strong> | CSS variables for the colour theme and media queries that switch to a toggle menu on phone-sized screens.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Tech Stack</div>
+            <div class="detail-tags">
+              <span class="detail-tag">HTML</span>
+              <span class="detail-tag">CSS</span>
+              <span class="detail-tag">JavaScript</span>
+              <span class="detail-tag">Firebase</span>
+              <span class="detail-tag">Responsive Design</span>
+              <span class="detail-tag">Media Queries</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VISOR INSURANCE ANALYSIS -->
+        <div class="detail-content" id="detail-visor">
+          <div class="detail-close"><button class="close-btn" onclick="closeDetail()">✕ Close</button></div>
+          <div class="detail-cat">Information Systems | NCC Level 5</div>
+          <div class="detail-name">Visor Insurance Analysis</div>
+          <div class="detail-divider"></div>
+
+          <div class="detail-stat-row">
+            <div class="detail-stat">
+              <div class="detail-stat-val">5</div>
+              <div class="detail-stat-label">Analysis tasks</div>
+            </div>
+            <div class="detail-stat">
+              <div class="detail-stat-val">10</div>
+              <div class="detail-stat-label">Claim handling steps</div>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Overview</div>
+            <div class="detail-section-text">
+              <p>An information systems analysis for Visor Insurance, a well-established insurer whose information systems had fallen behind. The study sets out how the company should find out what it needs and what an integrated system should do.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">What Was Covered</div>
+            <div class="detail-section-text">
+              <p><strong style="color:var(--ink)">Fact Finding</strong> | Compared interviews, observation, document sampling and questionnaires, with the advantages and disadvantages of each and extra methods such as focus groups and benchmarking.</p>
+              <p><strong style="color:var(--ink)">Ethics</strong> | Framework for evaluating an information system across knowledge, psychological, task-structure, efficiency and ethical factors.</p>
+              <p><strong style="color:var(--ink)">SWOT and Stakeholders</strong> | SWOT analysis of the company and a stakeholder matrix placing groups by their interest in the new system and power to influence it.</p>
+              <p><strong style="color:var(--ink)">Requirements and Design</strong> | User requirements for claims representatives and a hierarchical task analysis of handling a claim submitted online, from checking the policy to notifying the customer.</p>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-section-label">Tech Stack</div>
+            <div class="detail-tags">
+              <span class="detail-tag">Systems Analysis</span>
+              <span class="detail-tag">SWOT</span>
+              <span class="detail-tag">Stakeholder Mapping</span>
+              <span class="detail-tag">Requirements</span>
+              <span class="detail-tag">Task Analysis</span>
+              <span class="detail-tag">Ethics</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -497,32 +877,37 @@
 </div>
 
 <script>
-  let current = null;
+  const rows = document.querySelectorAll('.project-row');
+  const panel = document.getElementById('detailPanel');
+  const emptyState = document.getElementById('detailEmpty');
 
-  function openDetail(id) {
-    // hide all
+  function openDetail(id, row) {
     document.querySelectorAll('.detail-content').forEach(el => el.classList.remove('visible'));
-    document.querySelectorAll('.project-row').forEach(el => el.classList.remove('active'));
-    document.getElementById('detailEmpty').style.display = 'none';
+    rows.forEach(el => el.classList.remove('active'));
+    emptyState.style.display = 'none';
 
-    // show selected
     const content = document.getElementById('detail-' + id);
     if (content) content.classList.add('visible');
-
-    // mark row active
-    event.currentTarget.classList.add('active');
-    current = id;
-
-    // scroll panel to top
-    document.getElementById('detailPanel').scrollTop = 0;
+    if (row) {
+      row.classList.add('active');
+      row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+    panel.scrollTop = 0;
   }
 
   function closeDetail() {
     document.querySelectorAll('.detail-content').forEach(el => el.classList.remove('visible'));
-    document.querySelectorAll('.project-row').forEach(el => el.classList.remove('active'));
-    document.getElementById('detailEmpty').style.display = 'flex';
-    current = null;
+    rows.forEach(el => el.classList.remove('active'));
+    emptyState.style.display = 'flex';
   }
+
+  rows.forEach(row => {
+    row.addEventListener('click', () => openDetail(row.dataset.id, row));
+    row.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(row.dataset.id, row); }
+    });
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
 </script>
 </body>
 </html>
